@@ -1,12 +1,17 @@
 <script setup>
 import { Warning } from '@element-plus/icons-vue'
 
-const steps = [
-  { id: 1, num: '01', name: '放置产品', status: 'completed' },
-  { id: 2, num: '02', name: '安装后端盖', status: 'completed' },
-  { id: 3, num: '03', name: '打钉', status: 'error' },
-  { id: 4, num: '04', name: '移走产品', status: 'pending' }
-]
+defineProps({
+  steps: {
+    type: Array,
+    default: () => [
+      { id: 1, num: '01', name: '放置产品', status: 'pending' },
+      { id: 2, num: '02', name: '安装后端盖', status: 'pending' },
+      { id: 3, num: '03', name: '打钉', status: 'pending' },
+      { id: 4, num: '04', name: '移走产品', status: 'pending' }
+    ]
+  }
+})
 
 const errorInfo = {
   workstation: '工位④',
@@ -38,7 +43,14 @@ function nodeClass(status) {
           :hollow="step.status === 'pending'"
         >
           <template #dot>
-            <div class="timeline-dot" :class="nodeClass(step.status)">
+            <div
+              v-if="step.status === 'sim' && step.color"
+              class="timeline-dot"
+              :style="{ background: step.color, color: '#fff' }"
+            >
+              <span>!</span>
+            </div>
+            <div v-else class="timeline-dot" :class="nodeClass(step.status)">
               <span v-if="step.status === 'completed'">✓</span>
               <span v-else-if="step.status === 'error'">!</span>
             </div>
@@ -139,12 +151,6 @@ function nodeClass(status) {
   align-items: center;
   gap: 8px;
   padding: 4px 0;
-}
-
-.step-content.error {
-  margin: -4px -12px;
-  padding: 6px 12px;
-  border-radius: 4px;
 }
 
 .step-num {

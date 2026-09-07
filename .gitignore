@@ -10,3 +10,6 @@ dist/
 *.ntvs*
 *.njsproj
 *.sln
+__pycache__/
+*.pyc
+backend/venv/

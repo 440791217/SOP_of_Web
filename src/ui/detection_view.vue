@@ -41,7 +41,7 @@ const errorText = '漏打钉'
   flex: 1;
   position: relative;
   overflow: hidden;
-  background: #1e1e1e;
+  background: #e8eaed;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -58,26 +58,26 @@ const errorText = '漏打钉'
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.05);
+  border: 2px solid rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(0, 0, 0, 0.3);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .play-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.4);
-  color: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.2);
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .placeholder-text {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(0, 0, 0, 0.25);
 }
 
 .detection-info-bar {

@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import DetectionView from '../ui/detection_view.vue'
 import ProcessStepList from '../ui/process_step_list.vue'
 import { formatTime, formatDate } from '../utils/time_utils.js'
+import { connectWebSocket } from '../core/detection_service.js'
 
 const headerInfo = {
   title: 'SOP 工序检测',
@@ -14,7 +15,27 @@ const headerInfo = {
 const currentTime = ref(formatTime(new Date()))
 const currentDate = ref(formatDate(new Date()))
 const activeMenu = ref('detection')
+const steps = ref([
+  { id: 1, num: '01', name: '放置产品', status: 'pending' },
+  { id: 2, num: '02', name: '安装后端盖', status: 'pending' },
+  { id: 3, num: '03', name: '打钉', status: 'pending' },
+  { id: 4, num: '04', name: '移走产品', status: 'pending' }
+])
+
 let timer = null
+let ws = null
+
+function startSim() {
+  if (ws) {
+    ws.close()
+  }
+  steps.value.forEach(s => s.status = 'pending')
+  ws = connectWebSocket((msg) => {
+    if (msg.type === 'step_update' || msg.type === 'done') {
+      steps.value = msg.steps.map(s => ({ ...s }))
+    }
+  })
+}
 
 onMounted(() => {
   timer = setInterval(() => {
@@ -26,6 +47,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (timer) clearInterval(timer)
+  if (ws) ws.close()
 })
 </script>
 
@@ -40,14 +62,15 @@ onUnmounted(() => {
           mode="horizontal"
           class="header-menu"
           background-color="transparent"
-          text-color="#8b9bb4"
-          active-text-color="#e8edf5"
+          text-color="#5a6378"
+          active-text-color="#1a1a2e"
         >
           <el-menu-item index="detection">检测监控</el-menu-item>
           <el-menu-item index="history">历史记录</el-menu-item>
           <el-menu-item index="config">配置管理</el-menu-item>
           <el-menu-item index="help">帮助</el-menu-item>
         </el-menu>
+        <el-button size="small" type="primary" plain @click="startSim" class="sim-btn">测试模拟</el-button>
       </div>
       <div class="header-center">
         <div class="info-chip">
@@ -74,7 +97,7 @@ onUnmounted(() => {
         <DetectionView />
       </div>
       <div class="main-right">
-        <ProcessStepList />
+        <ProcessStepList :steps="steps" />
       </div>
     </main>
   </div>
@@ -118,6 +141,10 @@ onUnmounted(() => {
 
 .header-menu .el-menu-item.is-active {
   border-bottom-color: #6366f1;
+}
+
+.sim-btn {
+  margin-left: 4px;
 }
 
 .logo-badge {
