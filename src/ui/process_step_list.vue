@@ -197,6 +197,19 @@ function nodeClass(status) {
   border-radius: 8px;
 }
 
+.error-card :deep(.el-descriptions) {
+  --el-fill-color-blank: var(--bg-panel);
+}
+
+.error-card :deep(.el-descriptions__body) {
+  background: var(--bg-panel);
+}
+
+.error-card :deep(.el-descriptions__cell) {
+  background: var(--bg-panel) !important;
+  border-color: var(--border-color) !important;
+}
+
 .error-text {
   color: var(--color-error);
   font-weight: 600;

@@ -1,39 +1,41 @@
 import axios from 'axios'
 
+const API_BASE = 'http://localhost:8080'
+const WS_BASE = 'ws://localhost:8080'
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000'
+  baseURL: API_BASE
 })
 
-export async function getStepList() {
-  const res = await api.get('/api/steps')
-  return res.data.steps
+export async function startCamera(cameraId, rtspUrl) {
+  const res = await api.post('/api/v1/camera/start', { cameraId, url: rtspUrl })
+  return res.data
 }
 
-export async function getErrorInfo() {
-  const res = await api.get('/api/steps')
-  return res.data.errorInfo
+export async function stopCamera(cameraId) {
+  const res = await api.post('/api/v1/camera/stop', { cameraId })
+  return res.data
 }
 
-export async function getHeaderInfo() {
-  const res = await api.get('/api/steps')
-  return res.data.headerInfo
-}
-
-export function connectWebSocket(onMessage) {
-  const ws = new WebSocket('ws://localhost:8000/ws/steps')
+export function connectDetectionWS(cameraId, onMessage, fps = 10) {
+  const ws = new WebSocket(`${WS_BASE}/ws/detect`)
+  let timer = null
 
   ws.onopen = () => {
-    console.log('WebSocket connected')
+    console.log('[WS] detection connected, waiting 3s for RTSP stream...')
+    setTimeout(() => {
+      const interval = 1000 / fps
+      timer = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ cameraId }))
+        }
+      }, interval)
+    }, 3000)
   }
 
   ws.onmessage = (event) => {
-    const data = event.data
-    if (data === 'waiting') {
-      ws.send('start')
-      return
-    }
     try {
-      const msg = JSON.parse(data)
+      const msg = JSON.parse(event.data)
       onMessage(msg)
     } catch {
       // ignore non-JSON
@@ -41,11 +43,12 @@ export function connectWebSocket(onMessage) {
   }
 
   ws.onclose = () => {
-    console.log('WebSocket disconnected')
+    console.log('[WS] detection disconnected')
+    if (timer) clearInterval(timer)
   }
 
   ws.onerror = (err) => {
-    console.error('WebSocket error', err)
+    console.error('[WS] detection error', err)
   }
 
   return ws
